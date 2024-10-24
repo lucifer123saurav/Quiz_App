@@ -1,187 +1,134 @@
+// components/Quiz.jsx
 import React, { useState, useEffect } from 'react';
-import QuizResult from './QuizResult'; 
-
-const quizQuestions = [
-    {
-      question: 'Which of the following is NOT a JavaScript data type?',
-      options: ['Undefined', 'Number', 'Boolean', 'Float'],
-      answer: 'Float',
-    },
-    {
-      question: 'Which company developed JavaScript?',
-      options: ['Netscape', 'Mozilla', 'Microsoft', 'Oracle'],
-      answer: 'Netscape',
-    },
-    {
-      question: 'Which of the following is used to declare a variable in JavaScript?',
-      options: ['var', 'let', 'const', 'All of the above'],
-      answer: 'All of the above',
-    },
-    {
-      question: 'How do you write "Hello World" in an alert box?',
-      options: ['alertBox("Hello World");', 'alert("Hello World");', 'msg("Hello World");', 'msgBox("Hello World");'],
-      answer: 'alert("Hello World");',
-    },
-    {
-      question: 'Which of the following is a correct way to create an array in JavaScript?',
-      options: ['var arr = (1, 2, 3)', 'var arr = [1, 2, 3]', 'var arr = {1, 2, 3}', 'var arr = "1, 2, 3"'],
-      answer: 'var arr = [1, 2, 3]',
-    },
-    {
-      question: 'Which method is used to remove the last element of an array in JavaScript?',
-      options: ['shift()', 'pop()', 'remove()', 'slice()'],
-      answer: 'pop()',
-    },
-    {
-      question: 'How do you round the number 7.25 to the nearest integer in JavaScript?',
-      options: ['Math.rnd(7.25)', 'Math.round(7.25)', 'rnd(7.25)', 'round(7.25)'],
-      answer: 'Math.round(7.25)',
-    },
-    // {
-    //   question: 'Which event occurs when the user clicks on an HTML element?',
-    //   options: ['onchange', 'onclick', 'onmouseover', 'onmouseclick'],
-    //   answer: 'onclick',
-    // },
-    // {
-    //   question: 'What is the correct syntax for referring to an external script file called "script.js"?',
-    //   options: ['<script src="script.js">', '<script href="script.js">', '<script ref="script.js">', '<script name="script.js">'],
-    //   answer: '<script src="script.js">',
-    // },
-    // {
-    //   question: 'How can you add a comment in JavaScript?',
-    //   options: ['<!-- This is a comment -->', '// This is a comment', '/* This is a comment */', 'Both // and /* */'],
-    //   answer: 'Both // and /* */',
-    // },
-    // {
-    //   question: 'Which operator is used to assign a value to a variable in JavaScript?',
-    //   options: ['*', '=', '==', '==='],
-    //   answer: '=',
-    // },
-    // {
-    //   question: 'Which method can be used to convert a string to lowercase letters?',
-    //   options: ['toLower()', 'toLowerCase()', 'changeCase(lower)', 'None of the above'],
-    //   answer: 'toLowerCase()',
-    // },
-    // {
-    //   question: 'Which built-in method returns the length of the string?',
-    //   options: ['length()', 'size()', 'index()', 'length'],
-    //   answer: 'length',
-    // },
-    // {
-    //   question: 'What is the correct way to write a JavaScript array?',
-    //   options: ['var colors = "red", "green", "blue"', 'var colors = ["red", "green", "blue"]', 'var colors = (1:"red", 2:"green", 3:"blue")', 'var colors = {red, green, blue}'],
-    //   answer: 'var colors = ["red", "green", "blue"]',
-    // },
-    // {
-    //   question: 'Which method is used to remove the first element from an array in JavaScript?',
-    //   options: ['pop()', 'shift()', 'slice()', 'splice()'],
-    //   answer: 'shift()',
-    // },
-    // {
-    //   question: 'What will be the output of the following code: console.log(typeof null);',
-    //   options: ['"object"', '"null"', '"undefined"', '"string"'],
-    //   answer: '"object"',
-    // },
-    // {
-    //   question: 'How do you create a function in JavaScript?',
-    //   options: ['function = myFunction()', 'function myFunction()', 'function:myFunction()', 'create.myFunction()'],
-    //   answer: 'function myFunction()',
-    // },
-    // {
-    //   question: 'What is the purpose of the "this" keyword in JavaScript?',
-    //   options: ['It refers to the current function.', 'It refers to the global object.', 'It refers to the current object.', 'It refers to the previous object.'],
-    //   answer: 'It refers to the current object.',
-    // },
-    // {
-    //   question: 'Which method is used to add one or more elements to the end of an array?',
-    //   options: ['push()', 'pop()', 'concat()', 'append()'],
-    //   answer: 'push()',
-    // },
-    // {
-    //   question: 'What does JSON stand for?',
-    //   options: ['JavaScript Object Notation', 'JavaScript Online Notation', 'Java Source Object Notation', 'JavaScript Object Navigator'],
-    //   answer: 'JavaScript Object Notation',
-    // },
-  ];
-
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const Quiz = () => {
-  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Get quiz questions from navigation state
+  const quizQuestions = location.state?.quizQuestions || [];
+  
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [selectedOption, setSelectedOption] = useState('');
-  const [timeLeft, setTimeLeft] = useState(30); 
-  const [isQuizComplete, setIsQuizComplete] = useState(false); 
+  const [timeLeft, setTimeLeft] = useState(30);
+  const [isQuizComplete, setIsQuizComplete] = useState(false);
 
-  
+  // Redirect if no questions available
   useEffect(() => {
-    setTimeLeft(30); 
-  }, [currentQuestion]);
+    if (quizQuestions.length === 0) {
+      alert('No questions available');
+      navigate('/');
+    }
+  }, [quizQuestions, navigate]);
 
+  // Reset timer when question changes
+  useEffect(() => {
+    setTimeLeft(30);
+  }, [currentQuestionIndex]);
+
+  // Timer effect
   useEffect(() => {
     if (timeLeft === 0) {
       handleNextQuestion();
       return;
     }
-    const timerId = setInterval(() => {
-      setTimeLeft(timeLeft - 1);
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
     }, 1000);
 
-    return () => clearInterval(timerId);
+    return () => clearInterval(timer);
   }, [timeLeft]);
 
-  const handleOptionClick = (option) => {
+  const handleOptionSelect = (option) => {
     setSelectedOption(option);
   };
 
   const handleNextQuestion = () => {
-    if (selectedOption === '' && timeLeft > 0) {
-      alert('Please Select the answer');
+    // Check if an option is selected
+    if (!selectedOption && timeLeft > 0) {
+      alert('Please select an answer');
       return;
     }
 
-    if (selectedOption === quizQuestions[currentQuestion].answer) {
-      setScore(score + 1);
+    // Check if answer is correct
+    const currentQuestion = quizQuestions[currentQuestionIndex];
+    if (selectedOption === currentQuestion.answer) {
+      setScore(prev => prev + 1);
     }
 
-    setSelectedOption('');
-    const nextQuestion = currentQuestion + 1;
-
-    if (nextQuestion < quizQuestions.length) {
-      setCurrentQuestion(nextQuestion);
+    // Move to next question or complete quiz
+    if (currentQuestionIndex < quizQuestions.length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
+      setSelectedOption('');
     } else {
       setIsQuizComplete(true);
     }
   };
 
+  // Show results if quiz is complete
   if (isQuizComplete) {
-    return <QuizResult score={score} totalQuestions={quizQuestions.length} />;
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-lg shadow-md p-8 max-w-md w-full">
+          <h2 className="text-2xl font-bold mb-4">Quiz Complete!</h2>
+          <p className="text-lg mb-4">
+            Your score: {score} out of {quizQuestions.length}
+          </p>
+          <p className="text-lg mb-6">
+            Percentage: {((score / quizQuestions.length) * 100).toFixed(2)}%
+          </p>
+          <button
+            onClick={() => navigate('/')}
+            className="w-full bg-blue-500 text-white p-3 rounded hover:bg-blue-600"
+          >
+            Return to Home
+          </button>
+        </div>
+      </div>
+    );
   }
 
+  // Current question display
+  const currentQuestion = quizQuestions[currentQuestionIndex];
+
   return (
-    <div className="bg-white shadow-md p-4 rounded-lg w-1/2">
-      <h2 className="text-xl font-bold mb-4">{quizQuestions[currentQuestion].question}</h2>
-      <div className="mb-2">
-        <span className="text-red-500 font-bold">Time Left: {timeLeft}s</span>
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+      <div className="bg-white shadow-md p-6 rounded-lg w-full max-w-2xl">
+        <div className="mb-4 flex justify-between items-center">
+          <span className="text-lg">
+            Question {currentQuestionIndex + 1} of {quizQuestions.length}
+          </span>
+          <span className="text-red-500 font-bold">Time Left: {timeLeft}s</span>
+        </div>
+        
+        <h2 className="text-xl font-bold mb-6">{currentQuestion.question}</h2>
+        
+        <div className="space-y-3">
+          {currentQuestion.options.map((option, index) => (
+            <button
+              key={index}
+              onClick={() => handleOptionSelect(option)}
+              className={`block w-full p-3 text-left rounded-lg transition-colors ${
+                selectedOption === option
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-100 hover:bg-gray-200'
+              }`}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+
+        <button
+          onClick={handleNextQuestion}
+          className="mt-6 w-full px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600"
+        >
+          {currentQuestionIndex === quizQuestions.length - 1 ? 'Finish Quiz' : 'Next Question'}
+        </button>
       </div>
-      <div>
-        {quizQuestions[currentQuestion].options.map((option, index) => (
-          <button
-            key={index}
-            onClick={() => handleOptionClick(option)}
-            className={`block w-full p-2 my-2 text-left rounded-lg ${
-              selectedOption === option ? 'bg-green-500 text-white' : 'bg-gray-200'
-            }`}
-          >
-            {option}
-          </button>
-        ))}
-      </div>
-      <button
-        onClick={handleNextQuestion}
-        className="mt-4 px-4 py-2 bg-gray-600 text-white rounded-lg"
-      >
-        Next
-      </button>
     </div>
   );
 };

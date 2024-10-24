@@ -1,28 +1,36 @@
+// App.jsx
 import React, { useState } from 'react';
-import Navbar from './components/Navbar';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './components/Home';
+import CreateQuiz from './components/CreateQuiz';
 import Quiz from './components/Quiz';
-import QuizResult from './components/QuizResult';
 
 const App = () => {
-  const [showResult, setShowResult] = useState(false);
-  const [score, setScore] = useState(0);
+  // Main state to store all quiz questions
+  const [quizQuestions, setQuizQuestions] = useState([]);
 
-  const handleQuizComplete = (finalScore) => {
-    setScore(finalScore);
-    setShowResult(true);
+  // Function to add new question to the quiz
+  const handleAddQuestion = (newQuestion) => {
+    setQuizQuestions(prevQuestions => [...prevQuestions, newQuestion]);
   };
 
   return (
-    <div>
-      <Navbar />
-      <div className="min-h-screen bg-gray-100 p-4 flex justify-center items-center">
-        {!showResult ? (
-          <Quiz onQuizComplete={handleQuizComplete} />
-        ) : (
-          <QuizResult score={score} />
-        )}
-      </div>
-    </div>
+    <Router>
+      <Routes>
+        <Route 
+          path="/" 
+          element={<Home quizQuestions={quizQuestions} />} 
+        />
+        <Route 
+          path="/createQuiz" 
+          element={<CreateQuiz onAddQuestion={handleAddQuestion} />} 
+        />
+        <Route 
+          path="/quiz" 
+          element={<Quiz />} 
+        />
+      </Routes>
+    </Router>
   );
 };
 
