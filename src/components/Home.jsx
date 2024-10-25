@@ -1,4 +1,3 @@
-// components/Home.jsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -7,7 +6,6 @@ const Home = ({ quizQuestions }) => {
 
   const handleTakeQuiz = () => {
     if (quizQuestions.length > 0) {
-      // Pass the entire questions array to Quiz component
       navigate('/quiz', { 
         state: { quizQuestions } 
       });
@@ -34,7 +32,6 @@ const Home = ({ quizQuestions }) => {
         </button>
       </div>
       
-      {/* Preview of created questions */}
       {quizQuestions.length > 0 && (
         <div className="mt-8 w-full max-w-md">
           <h2 className="text-xl font-semibold mb-4">Created Questions:</h2>

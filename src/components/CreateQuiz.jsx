@@ -1,4 +1,3 @@
-// components/CreateQuiz.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,30 +21,25 @@ const CreateQuiz = ({ onAddQuestion }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Validate that correct answer matches one of the options
     if (!formData.options.includes(formData.correctAnswer)) {
       alert('Correct answer must match one of the options!');
       return;
     }
 
-    // Create question object
     const questionData = {
       question: formData.question,
       options: formData.options,
       answer: formData.correctAnswer
     };
 
-    // Add question to the main state
     onAddQuestion(questionData);
 
-    // Reset form
     setFormData({
       question: '',
       options: ['', '', '', ''],
       correctAnswer: ''
     });
 
-    // Show success message
     const shouldAddMore = window.confirm('Question added successfully! Do you want to add another question?');
     if (!shouldAddMore) {
       navigate('/');

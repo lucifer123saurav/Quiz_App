@@ -1,12 +1,10 @@
-// components/Quiz.jsx
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const Quiz = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  
-  // Get quiz questions from navigation state
+ 
   const quizQuestions = location.state?.quizQuestions || [];
   
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -15,7 +13,6 @@ const Quiz = () => {
   const [timeLeft, setTimeLeft] = useState(30);
   const [isQuizComplete, setIsQuizComplete] = useState(false);
 
-  // Redirect if no questions available
   useEffect(() => {
     if (quizQuestions.length === 0) {
       alert('No questions available');
@@ -23,12 +20,10 @@ const Quiz = () => {
     }
   }, [quizQuestions, navigate]);
 
-  // Reset timer when question changes
   useEffect(() => {
     setTimeLeft(30);
   }, [currentQuestionIndex]);
 
-  // Timer effect
   useEffect(() => {
     if (timeLeft === 0) {
       handleNextQuestion();
@@ -47,19 +42,16 @@ const Quiz = () => {
   };
 
   const handleNextQuestion = () => {
-    // Check if an option is selected
     if (!selectedOption && timeLeft > 0) {
       alert('Please select an answer');
       return;
     }
 
-    // Check if answer is correct
     const currentQuestion = quizQuestions[currentQuestionIndex];
     if (selectedOption === currentQuestion.answer) {
       setScore(prev => prev + 1);
     }
 
-    // Move to next question or complete quiz
     if (currentQuestionIndex < quizQuestions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
       setSelectedOption('');
@@ -68,7 +60,6 @@ const Quiz = () => {
     }
   };
 
-  // Show results if quiz is complete
   if (isQuizComplete) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
@@ -91,7 +82,6 @@ const Quiz = () => {
     );
   }
 
-  // Current question display
   const currentQuestion = quizQuestions[currentQuestionIndex];
 
   return (
